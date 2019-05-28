@@ -163,7 +163,7 @@ class ImportFromCsvCommand extends Command
 			if(sizeof($data) != 3)
 				throw new \Exception("Wrong format of file. Try launch command with -X option if you use Excel for editing file.");
 
-			$translations[$data[0]][$data[1]] = $data[2];
+			$translations[$data[0]][$data[1]] = utf8_encode( $data[2] );
 		}
 
 		return $translations;
