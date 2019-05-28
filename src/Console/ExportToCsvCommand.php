@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use HighSolutions\LangImportExport\Facades\LangListService;
 
-class ExportToCsvCommand extends Command 
+class ExportToCsvCommand extends Command
 {
 
     /**
@@ -33,28 +33,28 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Parameters provided to command.
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $parameters = [];
 
 	/**
 	 * Default path for file save.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $defaultPath;
 
 	/**
 	 * File extension (default .csv).
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $ext = '.csv';
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @return void
 	 */
 	public function __construct()
@@ -70,7 +70,7 @@ class ExportToCsvCommand extends Command
 	 */
 	public function handle()
 	{
-		$this->getParameters();	
+		$this->getParameters();
 
 		$this->sayItsBeginning();
 
@@ -83,7 +83,7 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Fetch command parameters (arguments and options) and analyze them.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function getParameters()
@@ -96,14 +96,14 @@ class ExportToCsvCommand extends Command
 			'excel' => $this->option('excel') !== false,
 			'delimiter' => $this->option('delimiter'),
 			'enclosure' => $this->option('enclosure'),
-		];	
+		];
 
-		$this->setDefaultPath();		
+		$this->setDefaultPath();
 	}
 
 	/**
 	 * Set possible file names.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function setDefaultPath()
@@ -116,7 +116,7 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Display output that command has started and which groups are being exported.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function sayItsBeginning()
@@ -127,7 +127,7 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Get translations from localization files.
-	 * 
+	 *
 	 * @return array
 	 */
 	private function getTranslations()
@@ -137,7 +137,7 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Save fetched translations to file.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function saveTranslations($translations)
@@ -151,7 +151,7 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Open specified file (if not possible, open default one).
-	 * 
+	 *
 	 * @return FilePointerResource
 	 */
 	private function openFile()
@@ -162,15 +162,13 @@ class ExportToCsvCommand extends Command
 		if (!($output = fopen($this->parameters['output'], 'w'))) {
 			$output = fopen($this->defaultPath . $this->ext, 'w');
 		}
-		
-		fputs($output, "\xEF\xBB\xBF");
-		
+
 		return $output;
 	}
 
 	/**
 	 * Save content of translation files to specified file.
-	 * 
+	 *
 	 * @param FilePointerResource $output
 	 * @param array $translations
 	 * @return void
@@ -182,20 +180,20 @@ class ExportToCsvCommand extends Command
 				if(is_array($value)) {
 			    		continue;
 				}
-				$this->writeFile($output, $group, $key, $value);
+				$this->writeFile($output, $group, $key, utf8_decode( $value) );
 			}
 		}
 	}
 
 	/**
 	 * Put content of file to specified file with CSV parameters.
-	 * 
+	 *
 	 * @param FilePointerResource $output
 	 * @param string $group
 	 * @param string $key
 	 * @param string $value
 	 * @return void
-	 * 
+	 *
 	 */
 	private function writeFile()
 	{
@@ -206,7 +204,7 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Close output file and check if adjust file to Excel format.
-	 * 
+	 *
 	 * @param FilePointerResource $output
 	 * @return void
 	 */
@@ -220,24 +218,24 @@ class ExportToCsvCommand extends Command
 
 	/**
 	 * Adjust file to Excel format.
-	 * 
+	 *
 	 * @return void
-	 * 
+	 *
 	 */
 	private function adjustToExcel()
 	{
 		$data = file_get_contents($this->parameters['output']);
-		file_put_contents($this->parameters['output'], chr(255) . chr(254) . mb_convert_encoding($data, 'UTF-16LE', 'UTF-8'));		
+		file_put_contents($this->parameters['output'], chr(255) . chr(254) . mb_convert_encoding($data, 'UTF-16LE', 'UTF-8'));
 	}
 
 	/**
 	 * Display output that command is finished and where to find file.
-	 * 
+	 *
 	 * @return void
 	 */
 	private function sayItsFinish()
 	{
-		$this->info('Finished! Translations saved to: '. (substr($this->parameters['output'], strlen(base_path()) + 1))  
+		$this->info('Finished! Translations saved to: '. (substr($this->parameters['output'], strlen(base_path()) + 1))
 			. PHP_EOL);
 	}
 
